@@ -1,0 +1,3 @@
+[filter "convert-cr"]
+    clean = tr '\r' 'n'
+    smudge = tr '\n' '\r'
