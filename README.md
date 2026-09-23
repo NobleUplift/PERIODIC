@@ -35,22 +35,31 @@ To jump straight to an element, run its program. Names longer than 8 characters 
 | `periodic.mkdata.89p` | Stores test data (Hydrogen to Boron) for `periodic\table`; built from `src/mkdata.txt` |
 | `tools/ti89-textconv.py` | Git diff driver that shows `.89p` files as text |
 | `tools/ti89-pack.py` | Builds a text-stored `.89p` program from a UTF-8 source file |
+| `tools/build-mkdata.py` | Generates `src/mkdata.txt` from the element programs |
 
 ## Draft: `periodic\table`
 
-A single program that reads element data from matrices, replacing the 110 element programs. To try it, send `periodic.table.89p` and `periodic.mkdata.89p`, then run `periodic\mkdata()` once and `periodic\table()`. The test data covers Hydrogen to Boron.
+A single program that reads element data from lists, one list per field, replacing the 110 element programs. To try it, send `periodic.table.89p` and `periodic.mkdata.89p`, then run `periodic\mkdata()` once and `periodic\table()`. The test data covers Hydrogen to Boron.
 
 | Variable | Contents |
 |---|---|
-| `set1`…`set4` | One matrix per screen; row *n* holds the 6 display lines for atomic number *n* (`""` for a blank line) |
-| `elnm`, `elsym` | Element names and symbols, by atomic number |
+| `elnm`, `elsym`, `elgrp`, `elwt`, `eltype`, `elcfg` | 1st screen: name, symbol, group, atomic weight, type, electron configuration |
+| `elbp`, `elmp`, `elox`, `eldens`, `elsom` | 2nd screen: boiling and melting point, oxidation states, density, state of matter |
+| `elcrad`, `elarad`, `elavol`, `elfipv`, `elshc`, `elcs` | 3rd screen: covalent and atomic radius, atomic volume, first ionization potential, specific heat, crystal structure |
+| `elen`, `elhov`, `elhof`, `elec`, `eltc`, `elabp` | 4th screen: electronegativity, heats of vaporization and fusion, electrical and thermal conductivity, acid/base property |
 | `byname`, `bysym` | Atomic numbers sorted by name and by symbol, used for the menus and next/previous |
 
-To rebuild after editing a source file:
+Item *n* of each list belongs to atomic number *n*. Values are stored as strings without their labels (e.g. `"20.28"`), and `periodic\table` adds the labels when it displays them.
+
+`src/mkdata.txt` is generated from the element programs' `Disp` strings. To regenerate it for atomic numbers 1 to *N*, then rebuild both programs:
 
 ```
+python3 tools/build-mkdata.py 5
+python3 tools/ti89-pack.py src/mkdata.txt periodic.mkdata.89p
 python3 tools/ti89-pack.py src/table.txt periodic.table.89p
 ```
+
+The generator stops at the first element whose strings don't match the expected labels, such as Oxygen's `"Atomic Weight 15.9994"` (no colon). It also can't read the six compiled programs, so generating all 110 elements needs those files fixed or entered by hand.
 
 ## Readable diffs
 

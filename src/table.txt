@@ -1,9 +1,10 @@
 ()
 Prgm
 © periodic\table: data-driven periodic\periodic (draft)
-© Data: set1-set4 (row n = element n, 6 lines per screen),
-© elnm, elsym, byname, bysym. Test data: periodic\mkdata()
-Local n,s,m,k,i,j,d,p,l,q,x,lst
+© Data: one list per field (elnm, elsym, elwt, ...), item n
+© = atomic number n; byname/bysym = sort orders.
+© Store data first with periodic\mkdata()
+Local n,s,m,k,i,j,d,p,l,x,lst
 dim(periodic\elnm)→m
 
 Lbl top
@@ -60,18 +61,34 @@ Lbl first
 1→s
 Lbl scr
 ClrIO
-For i,1,6
-If s=1
-periodic\set1[n,i]→q
-If s=2
-periodic\set2[n,i]→q
-If s=3
-periodic\set3[n,i]→q
-If s=4
-periodic\set4[n,i]→q
-If q≠""
-Disp q
-EndFor
+If s=1 Then
+Disp "Name:"&periodic\elnm[n]
+Disp "Symbol:"&left(periodic\elsym[n]&"          ",10)&"-"&periodic\elgrp[n]
+Disp "Atomic Number:"&string(n)
+Disp "Atomic Weight:"&periodic\elwt[n]
+Disp "Type:"&periodic\eltype[n]
+Disp periodic\elcfg[n]
+ElseIf s=2 Then
+Disp "Boiling Point (K)="&periodic\elbp[n]
+Disp "Melting Point (K)="&periodic\elmp[n]
+Disp "Oxydation States ="&periodic\elox[n]
+Disp "Density="&periodic\eldens[n]
+Disp "SoM="&periodic\elsom[n]
+ElseIf s=3 Then
+Disp "Covalent Radius,A="&periodic\elcrad[n]
+Disp "Atomic   Radius,A="&periodic\elarad[n]
+Disp "Atomic   Volume  ="&periodic\elavol[n]
+Disp "FIPV="&periodic\elfipv[n]
+Disp "SHC ="&periodic\elshc[n]
+Disp "CS="&periodic\elcs[n]
+Else
+Disp "EN ="&periodic\elen[n]
+Disp "HoV="&periodic\elhov[n]
+Disp "HoF="&periodic\elhof[n]
+Disp "EC ="&periodic\elec[n]
+Disp "TC ="&periodic\eltc[n]
+Disp "ABP="&periodic\elabp[n]
+EndIf
 Toolbar
 Title "1st set",st1
 Title "2nd set",st2
