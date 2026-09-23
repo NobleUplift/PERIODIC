@@ -30,7 +30,6 @@ All variables live in the calculator folder `periodic`, and every call is fully 
   - A `Toolbar` whose Options menu has Main, Quit, and next/previous by atomic number, name and symbol.
   - Label names that vary per file (e.g. `aca`…`acd` plus a menu label like `klmn` or `abcd`). All of them must be declared in `Local`.
 - **The data and the navigation order are copied into every element file.** "Next by Name" in `gold` calls `periodic\hafnium()`; "Next by Symbol" calls `periodic\boron()`. The first and last elements show "Beginning of List" or "End of List" instead of calling another program. Adding or removing an element means updating its neighbours in all three orders, plus the dispatch tables in `periodic` and `atomnum`.
-
 - **`periodic.table` (draft)** is a single-program replacement that reads `periodic\set1`…`set4` (string matrices, row = atomic number), `elnm`, `elsym`, `byname` and `bysym`. `periodic.mkdata` stores test data for Hydrogen to Boron. Their sources are `src/table.txt` and `src/mkdata.txt`. Edit the source, then rebuild with `python3 tools/ti89-pack.py src/table.txt periodic.table.89p`, and commit both. Sources are UTF-8 in the TI character set: `→` store, `−` negation, `≠`, `©` comment.
 
 ## File format (`*.89p`)
