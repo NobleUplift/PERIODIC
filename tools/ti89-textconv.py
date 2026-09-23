@@ -1,0 +1,71 @@
+#!/usr/bin/env python3
+"""Git textconv driver for TI-89 / TI-92 Plus variable files (*.89p, *.9xp).
+
+Prints the header fields and the program source as UTF-8 text with LF line
+endings, so `git diff` / `git log -p` show readable line-by-line diffs.
+The file in the repository is never modified.
+
+Setup (once per clone):
+    git config diff.ti89.textconv "python3 tools/ti89-textconv.py"
+"""
+import sys
+
+# TI-89 character set: 0x80-0x9F are TI-specific, most of 0xA0-0xFF is Latin-1.
+TI_HIGH = (
+    "αβΓγΔδεζθλξΠπρΣστφψΩωᴇℯίʳᵀx̄ȳ≤≠≥∠"  # 0x80-0x9F
+)
+TI_OVERRIDES = {0xAD: "⁻"}  # negative sign, not a soft hyphen
+
+
+def ti_char(b):
+    if b == 0x0D:
+        return "\n"
+    if b in TI_OVERRIDES:
+        return TI_OVERRIDES[b]
+    if 0x80 <= b <= 0x9F:
+        return TI_HIGH[b - 0x80] if b - 0x80 < len(TI_HIGH) else "\\x%02x" % b
+    if b < 0x20 and b != 0x09:
+        return "\\x%02x" % b
+    return bytes([b]).decode("latin-1")
+
+
+def cstr(raw):
+    return raw.split(b"\0", 1)[0].decode("latin-1")
+
+
+def main(path):
+    data = open(path, "rb").read()
+    out = sys.stdout
+
+    if not data.startswith((b"**TI92P*", b"**TI89**")) or len(data) < 0x5A:
+        out.write(data.decode("latin-1"))
+        return
+
+    folder = cstr(data[0x0A:0x12])
+    comment = cstr(data[0x12:0x3A])
+    name = cstr(data[0x40:0x48])
+    vtype = data[0x48]
+    out.write("# folder:  %s\n# name:    %s\n# type:    0x%02X\n# comment: %s\n"
+              % (folder, name, vtype, comment))
+
+    size = int.from_bytes(data[0x56:0x58], "big")
+    body = data[0x58:0x58 + size]
+    checksum = data[0x58 + size:0x5A + size]
+    out.write("# size:    %d bytes, checksum %s\n\n" % (size, checksum.hex()))
+
+    # Programs (0x12) and functions (0x17) end in ... E5 00 01 <flag> <tag>.
+    # Flag 0x08 means the source is stored as plain text; otherwise the
+    # variable was tokenized on the calculator and holds bytecode.
+    if vtype in (0x12, 0x17) and len(body) >= 2 and body[-2] == 0x08:
+        text = body.split(b"\0", 1)[0]
+        out.write("".join(ti_char(b) for b in text))
+        out.write("\n")
+    else:
+        out.write("# (tokenized/binary content; hex dump follows)\n")
+        for i in range(0, len(body), 16):
+            out.write("%04x  %s\n" % (i, body[i:i + 16].hex(" ")))
+
+
+if __name__ == "__main__":
+    sys.stdout.reconfigure(encoding="utf-8", newline="\n")
+    main(sys.argv[1])
