@@ -25,7 +25,7 @@ FIELDS = [
     ("elnm",   r"Name:"),
     ("elsym",  r"Symbol:"),              # value split into elsym and elgrp
     (None,     r"Atomic Number:"),       # the list index itself
-    ("elwt",   r"Atomic (?:Weight|Mass):"),
+    ("elwt",   r"Atomic (?:Weight|Mass):?"),
     ("eltype", r"Type:"),
     ("elcfg",  None),                    # electron configuration, no label
     ("elbp",   r"Boiling Point,? ?\(K\) *="),
@@ -108,16 +108,20 @@ def parse(path, strings, notes):
                 continue
         used.add(strings.index(hit))
         value = re.sub("^" + label, "", hit).strip()
+        # A run of 2+ spaces separates values, e.g. "Symbol:H         -1/IA".
+        parts = re.split(r"\s{2,}", value)
         if var == "elsym":
-            m = re.match(r"(\S+)\s*-\s*(.*)$", value)
-            if m:
-                rec["elsym"], rec["elgrp"] = m.group(1), m.group(2).strip()
+            if len(parts) == 2:
+                rec["elsym"], rec["elgrp"] = parts[0], parts[1].lstrip("-")
             else:
                 notes.append("%s: cannot split symbol and group in %r" % (name, hit))
                 rec["elsym"] = rec["elgrp"] = UNKNOWN
         elif var is None:
             rec["num"] = int(value) if value.isdigit() else None
         else:
+            if len(parts) > 1:
+                notes.append("%s: %s: value %r has a run of spaces; stored as is"
+                             % (name, var, value))
             rec[var] = value
     for pos, extra in enumerate(strings[:len(FIELDS) + 2]):
         if pos not in used:
