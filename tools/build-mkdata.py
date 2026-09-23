@@ -58,6 +58,9 @@ MENU = ["1st set", "2nd set", "3rd set", "4th set", "Options", "Main",
 
 UNKNOWN = "?"
 
+# Misspellings in the original element programs, corrected in every value.
+SPELLING = {"Lanthinide": "Lanthanide", "Acthinide": "Actinide"}
+
 
 def displayed_strings(path):
     """The strings an element program displays, in program order."""
@@ -108,6 +111,8 @@ def parse(path, strings, notes):
                 continue
         used.add(strings.index(hit))
         value = re.sub("^" + label, "", hit).strip()
+        for wrong, right in SPELLING.items():
+            value = value.replace(wrong, right)
         # A run of 2+ spaces separates values, e.g. "Symbol:H         -1/IA".
         parts = re.split(r"\s{2,}", value)
         if var == "elsym":
