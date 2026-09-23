@@ -6,4 +6,4 @@ Problems reading the element programs:
   techneti: string 18 not used: 'EC =1.9'
 
 Values still unknown (stored as '?'). Add them to src/manual-values.txt as <number><TAB><list><TAB><value>:
-43	elen	
+  none
