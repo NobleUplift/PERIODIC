@@ -5,7 +5,9 @@ Prints the header fields and the program source as UTF-8 text with LF line
 endings, so `git diff` / `git log -p` show readable line-by-line diffs.
 The file in the repository is never modified.
 
-Setup (once per clone):
+Setup (once per clone), either:
+    git config include.path ../.gitconfig
+or:
     git config diff.ti89.textconv "python3 tools/ti89-textconv.py"
 
 Single-variable file layout (integers little-endian unless noted), per
