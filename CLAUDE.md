@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A periodic-table browser written in 2006 in 68k TI-BASIC for the TI-89 Titanium. It works on any AMS 2.x/3.x calculator: TI-89, TI-92 Plus or Voyage 200. It has no build, lint or tests; the programs run on the calculator or in an emulator such as TiEmu. The only code that runs on a PC is `tools/ti89-textconv.py`.
+A periodic-table browser written in 2006 in 68k TI-BASIC for the TI-89 Titanium. It works on any AMS 2.x/3.x calculator: TI-89, TI-92 Plus or Voyage 200. It has no build, lint or tests; the programs run on the calculator or in an emulator such as TiEmu. The only code that runs on a PC is in `tools/`: the diff driver `ti89-textconv.py`, the packer `ti89-pack.py` and their shared character table `ti89charset.py`.
 
 ## Setup: readable diffs
 
@@ -31,6 +31,8 @@ All variables live in the calculator folder `periodic`, and every call is fully 
   - Label names that vary per file (e.g. `aca`…`acd` plus a menu label like `klmn` or `abcd`). All of them must be declared in `Local`.
 - **The data and the navigation order are copied into every element file.** "Next by Name" in `gold` calls `periodic\hafnium()`; "Next by Symbol" calls `periodic\boron()`. The first and last elements show "Beginning of List" or "End of List" instead of calling another program. Adding or removing an element means updating its neighbours in all three orders, plus the dispatch tables in `periodic` and `atomnum`.
 
+- **`periodic.table` (draft)** is a single-program replacement that reads `periodic\set1`…`set4` (string matrices, row = atomic number), `elnm`, `elsym`, `byname` and `bysym`. `periodic.mkdata` stores test data for Hydrogen to Boron. Their sources are `src/table.txt` and `src/mkdata.txt`. Edit the source, then rebuild with `python3 tools/ti89-pack.py src/table.txt periodic.table.89p`, and commit both. Sources are UTF-8 in the TI character set: `→` store, `−` negation, `≠`, `©` comment.
+
 ## File format (`*.89p`)
 
 The full byte layout is documented at the top of `tools/ti89-textconv.py`. In short:
@@ -42,5 +44,5 @@ The full byte layout is documented at the top of `tools/ti89-textconv.py`. In sh
 
 ## Editing rules
 
-- **Never edit a `.89p` file with a text editor or line-ending conversion.** Any change to the data must also update the length at 0x56, the total file size at 0x4C and the checksum, or the calculator will reject the file. Edit the bytes with a script and recompute all three. `git diff` should then show only the intended lines plus the checksum.
+- **Never edit a `.89p` file with a text editor or line-ending conversion.** Any change to the data must also update the length at 0x56, the total file size at 0x4C and the checksum, or the calculator will reject the file. Edit the bytes with a script and recompute all three; for text-stored programs, `tools/ti89-pack.py` does this. `git diff` should then show only the intended lines plus the checksum.
 - Keep strings short enough for the 160-px-wide TI-89 screen (about 26 characters per `Disp` line).

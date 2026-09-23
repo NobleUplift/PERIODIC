@@ -1,0 +1,149 @@
+()
+Prgm
+© periodic\table: data-driven periodic\periodic (draft)
+© Data: set1-set4 (row n = element n, 6 lines per screen),
+© elnm, elsym, byname, bysym. Test data: periodic\mkdata()
+Local n,s,m,k,i,j,d,p,l,q,x,lst
+dim(periodic\elnm)→m
+
+Lbl top
+ClrIO
+Disp "     Patrick Seiter's","Periodic Table of Elements","","Choose an element by","F1 Number, F2 Name or","F3 Symbol"
+Toolbar
+Title "Number",bynum
+Title "Name",bynm
+Title "Symbol",bysy
+Title "Quit",quit
+EndTBar
+Goto top
+
+Lbl bynum
+{}→lst
+For i,1,m
+augment(lst,{string(i)&" "&periodic\elsym[i]&" "&periodic\elnm[i]})→lst
+EndFor
+0→k
+PopUp lst,k
+If k=0
+Goto top
+k→n
+Goto first
+
+Lbl bynm
+{}→lst
+For i,1,m
+periodic\byname[i]→j
+augment(lst,{periodic\elnm[j]})→lst
+EndFor
+0→k
+PopUp lst,k
+If k=0
+Goto top
+periodic\byname[k]→n
+Goto first
+
+Lbl bysy
+{}→lst
+For i,1,m
+periodic\bysym[i]→j
+augment(lst,{periodic\elsym[j]&" "&periodic\elnm[j]})→lst
+EndFor
+0→k
+PopUp lst,k
+If k=0
+Goto top
+periodic\bysym[k]→n
+Goto first
+
+© Show screen s of element n
+Lbl first
+1→s
+Lbl scr
+ClrIO
+For i,1,6
+If s=1
+periodic\set1[n,i]→q
+If s=2
+periodic\set2[n,i]→q
+If s=3
+periodic\set3[n,i]→q
+If s=4
+periodic\set4[n,i]→q
+If q≠""
+Disp q
+EndFor
+Toolbar
+Title "1st set",st1
+Title "2nd set",st2
+Title "3rd set",st3
+Title "4th set",st4
+Title "Options"
+Item "Main",top
+Item "Next by Num.",nbnu
+Item "Prev by Num.",pbnu
+Item "Next by Name",nbnm
+Item "Prev by Name",pbnm
+Item "Next by Sym.",nbs
+Item "Prev by Sym.",pbs
+Item "Quit",quit
+EndTBar
+Goto scr
+
+Lbl st1
+1→s
+Goto scr
+Lbl st2
+2→s
+Goto scr
+Lbl st3
+3→s
+Goto scr
+Lbl st4
+4→s
+Goto scr
+
+© Next/previous: l = element order, d = direction
+Lbl nbnu
+seq(x,x,1,m)→l
+1→d
+Goto step
+Lbl pbnu
+seq(x,x,1,m)→l
+−1→d
+Goto step
+Lbl nbnm
+periodic\byname→l
+1→d
+Goto step
+Lbl pbnm
+periodic\byname→l
+−1→d
+Goto step
+Lbl nbs
+periodic\bysym→l
+1→d
+Goto step
+Lbl pbs
+periodic\bysym→l
+−1→d
+Goto step
+
+Lbl step
+1→p
+While l[p]≠n
+p+1→p
+EndWhile
+p+d→p
+If p<1
+Text "Beginning of List"
+If p>m
+Text "End of List"
+If p<1 or p>m
+Goto scr
+l[p]→n
+Goto first
+
+Lbl quit
+ClrIO
+DispHome
+EndPrgm

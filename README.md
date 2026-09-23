@@ -31,7 +31,26 @@ To jump straight to an element, run its program. Names longer than 8 characters 
 | `periodic.atomnum.89p` | Look up an element by atomic number |
 | `periodic.<element>.89p` | One program per element (110 in total) |
 | `periodic.template.89p` | Skeleton the element programs were copied from |
+| `periodic.table.89p` | **Draft** data-driven replacement for the main menu and all element programs; built from `src/table.txt` |
+| `periodic.mkdata.89p` | Stores test data (Hydrogen to Boron) for `periodic\table`; built from `src/mkdata.txt` |
 | `tools/ti89-textconv.py` | Git diff driver that shows `.89p` files as text |
+| `tools/ti89-pack.py` | Builds a text-stored `.89p` program from a UTF-8 source file |
+
+## Draft: `periodic\table`
+
+A single program that reads element data from matrices, replacing the 110 element programs. To try it, send `periodic.table.89p` and `periodic.mkdata.89p`, then run `periodic\mkdata()` once and `periodic\table()`. The test data covers Hydrogen to Boron.
+
+| Variable | Contents |
+|---|---|
+| `set1`…`set4` | One matrix per screen; row *n* holds the 6 display lines for atomic number *n* (`""` for a blank line) |
+| `elnm`, `elsym` | Element names and symbols, by atomic number |
+| `byname`, `bysym` | Atomic numbers sorted by name and by symbol, used for the menus and next/previous |
+
+To rebuild after editing a source file:
+
+```
+python3 tools/ti89-pack.py src/table.txt periodic.table.89p
+```
 
 ## Readable diffs
 

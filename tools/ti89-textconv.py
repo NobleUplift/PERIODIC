@@ -30,23 +30,7 @@ TiLP's libtifiles (files9x.cc) and the TI-89 Link Protocol Guide:
 """
 import sys
 
-# TI-89 character set: 0x80-0x9F are TI-specific, most of 0xA0-0xFF is Latin-1.
-TI_HIGH = (
-    "αβΓγΔδεζθλξΠπρΣστφψΩωᴇℯίʳᵀx̄ȳ≤≠≥∠"  # 0x80-0x9F
-)
-TI_OVERRIDES = {0xAD: "⁻"}  # negative sign, not a soft hyphen
-
-
-def ti_char(b):
-    if b == 0x0D:
-        return "\n"
-    if b in TI_OVERRIDES:
-        return TI_OVERRIDES[b]
-    if 0x80 <= b <= 0x9F:
-        return TI_HIGH[b - 0x80] if b - 0x80 < len(TI_HIGH) else "\\x%02x" % b
-    if b < 0x20 and b != 0x09:
-        return "\\x%02x" % b
-    return bytes([b]).decode("latin-1")
+import ti89charset
 
 
 def cstr(raw):
@@ -78,7 +62,7 @@ def main(path):
     # variable was tokenized on the calculator and holds bytecode.
     if vtype in (0x12, 0x13) and len(body) >= 2 and body[-2] == 0x08:
         text = body.split(b"\0", 1)[0]
-        out.write("".join(ti_char(b) for b in text))
+        out.write(ti89charset.decode(text))
         out.write("\n")
     else:
         out.write("# (tokenized/binary content; hex dump follows)\n")
