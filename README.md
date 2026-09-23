@@ -32,14 +32,14 @@ To jump straight to an element, run its program. Names longer than 8 characters 
 | `periodic.<element>.89p` | One program per element (110 in total) |
 | `periodic.template.89p` | Skeleton the element programs were copied from |
 | `periodic.table.89p` | **Draft** data-driven replacement for the main menu and all element programs; built from `src/table.txt` |
-| `periodic.mkdata.89p` | Stores test data (Hydrogen to Boron) for `periodic\table`; built from `src/mkdata.txt` |
+| `periodic.mkdata.89p` | Stores the element data (atomic numbers 1–110) for `periodic\table`; built from `src/mkdata.txt` |
 | `tools/ti89-textconv.py` | Git diff driver that shows `.89p` files as text |
 | `tools/ti89-pack.py` | Builds a text-stored `.89p` program from a UTF-8 source file |
-| `tools/build-mkdata.py` | Generates `src/mkdata.txt` from the element programs |
+| `tools/build-mkdata.py` | Generates `src/mkdata.txt` and `src/mkdata-notes.txt` from the element programs and `src/manual-values.txt` |
 
 ## Draft: `periodic\table`
 
-A single program that reads element data from lists, one list per field, replacing the 110 element programs. To try it, send `periodic.table.89p` and `periodic.mkdata.89p`, then run `periodic\mkdata()` once and `periodic\table()`. The test data covers Hydrogen to Boron.
+A single program that reads element data from lists, one list per field, replacing the 110 element programs. To try it, send `periodic.table.89p` and `periodic.mkdata.89p`, then run `periodic\mkdata()` once and `periodic\table()`.
 
 | Variable | Contents |
 |---|---|
@@ -51,15 +51,13 @@ A single program that reads element data from lists, one list per field, replaci
 
 Item *n* of each list belongs to atomic number *n*. Values are stored as strings without their labels (e.g. `"20.28"`), and `periodic\table` adds the labels when it displays them.
 
-`src/mkdata.txt` is generated from the element programs' `Disp` strings. To regenerate it for atomic numbers 1 to *N*, then rebuild both programs:
+`src/mkdata.txt` is generated from the `Disp` strings of the element programs, including the four compiled ones, whose strings survive intact in the byte-code. Values that can't be read are stored as `"?"` and listed, with the reason, in `src/mkdata-notes.txt`. Supply them in `src/manual-values.txt` as `<atomic number><TAB><list name><TAB><value>`; manual values override what's read from the programs. Then regenerate and rebuild:
 
 ```
-python3 tools/build-mkdata.py 5
+python3 tools/build-mkdata.py          # atomic numbers 1-110; pass N for 1-N
 python3 tools/ti89-pack.py src/mkdata.txt periodic.mkdata.89p
 python3 tools/ti89-pack.py src/table.txt periodic.table.89p
 ```
-
-The generator stops at the first element whose strings don't match the expected labels, such as Oxygen's `"Atomic Weight 15.9994"` (no colon). It also can't read the six compiled programs, so generating all 110 elements needs those files fixed or entered by hand.
 
 ## Readable diffs
 
@@ -113,7 +111,7 @@ Notes:
   - `08` is a flag marking the program as stored as text.
   - `E5` ends the (empty) parameter list.
   - `19 E4` is the `Prgm` command.
-- **Six programs are compiled** (`periodic`, `atomnum`, `argon`, `manganes`, `rutheniu`, `techneti`), because they were run on the calculator before being backed up. Their flag byte is `00`, and the data is TI's byte-code stored in reverse order: `E8` is a new line, `E9` the end of the program, and `E4 xx` a command. The diff driver shows these as a hex dump.
+- **Six programs are compiled**: the main menu `periodic`, `atomnum`, and four elements (`argon`, `manganes`, `rutheniu`, `techneti`), because they were run on the calculator before being backed up. Their flag byte is `00`, and the data is TI's byte-code stored in reverse order: `E8` is a new line, `E9` the end of the program, and `E4 xx` a command. The diff driver shows these as a hex dump. Strings survive intact in the byte-code as `00 <text> 00 2D`, in reverse order.
 - **The meaning of the `08`/`00` flag was worked out by comparing these files**; none of the sources below document it.
 
 ### Sources

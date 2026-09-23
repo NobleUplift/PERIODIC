@@ -1,0 +1,4 @@
+# Values for periodic\mkdata that can't be read from the element programs.
+# One per line: <atomic number><TAB><list name><TAB><value>
+# List names are listed in tools/build-mkdata.py (elnm, elsym, elgrp, elwt, ...).
+# See src/mkdata-notes.txt for the values still needed.
