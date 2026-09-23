@@ -1,0 +1,43 @@
+()
+Prgm
+© entropy: Shannon entropy H(S) = -Σ p·log2(p)
+© Enter a list of frequency counts or probabilities,
+© e.g. {1,1,2,4} or {.25,.25,.5}; counts are
+© normalized to probabilities before computing H.
+Local p,n,i,h,mx
+
+Lbl top
+ClrIO
+Disp "Shannon Entropy","H(S) = -Σ p·log2(p)","","Enter counts or","probabilities as a list,","e.g. {1,1,2,4}"
+Toolbar
+Title "Quit",quit
+EndTBar
+Input "List",p
+
+If dim(p)<1 or min(p)<0
+Goto top
+sum(p)→n
+If n≤0
+Goto top
+p/n→p
+
+0→h
+For i,1,dim(p)
+If p[i]>0
+h-p[i]*ln(p[i])/ln(2)→h
+EndFor
+
+If dim(p)>1
+ln(dim(p))/ln(2)→mx
+If dim(p)=1
+0→mx
+
+ClrIO
+Disp "H(S) = "&string(round(h,4))&" bits"
+If mx>0
+Disp "Max (uniform) = "&string(round(mx,4))&" bits","Efficiency = "&string(round(100*h/mx,2))&"%"
+Pause
+Goto top
+
+Lbl quit
+EndPrgm
