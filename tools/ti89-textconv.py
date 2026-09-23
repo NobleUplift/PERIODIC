@@ -7,6 +7,24 @@ The file in the repository is never modified.
 
 Setup (once per clone):
     git config diff.ti89.textconv "python3 tools/ti89-textconv.py"
+
+Single-variable file layout (integers little-endian unless noted), per
+TiLP's libtifiles (files9x.cc) and the TI-89 Link Protocol Guide:
+    0x00  8   signature: "**TI89**", "**TI92P*", "**TI92**" or "**V200**"
+    0x08  2   01 00
+    0x0A  8   default folder name, NUL-padded
+    0x12  40  comment, NUL-padded
+    0x3A  2   number of variable entries (1)
+    0x3C  4   offset of this entry's data (0x52)
+    0x40  8   variable name, NUL-padded
+    0x48  1   type (0x12 program, 0x13 function, 0x0C string, ...)
+    0x49  1   attribute (0 none, 1 locked, 2/3 archived)
+    0x4A  2   00 00
+    0x4C  4   total file size
+    0x50  2   A5 5A
+    0x52  4   00 00 00 00
+    0x56  n   variable data; starts with a 2-byte BIG-endian length
+    ...   2   checksum: sum of the n data bytes, mod 0x10000
 """
 import sys
 
@@ -53,10 +71,10 @@ def main(path):
     checksum = data[0x58 + size:0x5A + size]
     out.write("# size:    %d bytes, checksum %s\n\n" % (size, checksum.hex()))
 
-    # Programs (0x12) and functions (0x17) end in ... E5 00 01 <flag> <tag>.
+    # Programs (0x12) and functions (0x13) end in ... E5 00 01 <flag> <tag>.
     # Flag 0x08 means the source is stored as plain text; otherwise the
     # variable was tokenized on the calculator and holds bytecode.
-    if vtype in (0x12, 0x17) and len(body) >= 2 and body[-2] == 0x08:
+    if vtype in (0x12, 0x13) and len(body) >= 2 and body[-2] == 0x08:
         text = body.split(b"\0", 1)[0]
         out.write("".join(ti_char(b) for b in text))
         out.write("\n")
