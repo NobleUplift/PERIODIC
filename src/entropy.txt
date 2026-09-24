@@ -1,18 +1,23 @@
 ()
 Prgm
 © entropy: Shannon entropy H(S) = -Σ p·log2(p)
-© Enter a list of frequency counts or probabilities,
-© e.g. {1,1,2,4} or {.25,.25,.5}; counts are
-© normalized to probabilities before computing H.
-Local p,n,i,h,mx
+© Enter frequency counts or probabilities, comma
+© separated (no braces), e.g. 1,1,2,4 or .25,.25,.5;
+© counts are normalized to probabilities first.
+© Uses Request+expr instead of Input, whose "prompt",var
+© dialog form did not display for list entry on hardware.
+Local p,n,i,h,mx,s
 
 Lbl top
 ClrIO
-Disp "Shannon Entropy","H(S) = -Σ p·log2(p)","","Enter counts or","probabilities as a list,","e.g. {1,1,2,4}"
+Disp "Shannon Entropy","H(S) = -Σ p·log2(p)","","Enter counts or","probabilities, comma","separated: 1,1,2,4"
 Toolbar
 Title "Quit",quit
 EndTBar
-Input "List",p
+Request "List",s
+If s=""
+Goto top
+expr("{"&s&"}")→p
 
 If dim(p)<1 or min(p)<0
 Goto top
