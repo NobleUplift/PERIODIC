@@ -1,3 +1,4 @@
-[filter "convert-cr"]
-    clean = tr '\r' 'n'
-    smudge = tr '\n' '\r'
+# Repo-local git config. Enable once per clone with:
+#     git config include.path ../.gitconfig
+[diff "ti89"]
+    textconv = python3 tools/ti89-textconv.py
