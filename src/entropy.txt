@@ -71,4 +71,6 @@ Pause
 Goto top
 
 Lbl quit
+ClrIO
+DispHome
 EndPrgm
